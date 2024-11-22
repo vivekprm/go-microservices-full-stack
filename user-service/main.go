@@ -1,24 +1,35 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net/http"
+
+	"github.com/joho/godotenv"
+	"user-service/config"
+	"user-service/db"
 )
 
 func main() {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatal("Error loading environment variables:", err)
+	}
+
+	// Connect to PostgreSQL database
+	cfg := config.GetConfig()
+	db, err := db.ConnectDB(cfg)
+	if err != nil {
+		log.Fatal("Error connecting to database:", err)
+	}
+	defer db.Close()
+
 	userMux := http.NewServeMux()
-	userMux.Handle("/api/users/", &userHandler{})
+	userMux.Handle("/api/users", &userHandler{db: db})
+	userMux.Handle("/api/users/", &userHandler{db: db})
 	s := &http.Server{
-		Addr:    ":4000",
+		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: userMux,
 	}
-	go func() {
-		log.Fatalln(s.ListenAndServe())
-	}()
-	fmt.Println("User service started. Press <ENTER> to stop.")
-	fmt.Scanln()
-	s.Shutdown(context.Background())
-	fmt.Println("User service stopped")
+	s.ListenAndServe()
 }
