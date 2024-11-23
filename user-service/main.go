@@ -6,8 +6,9 @@ import (
 	"net/http"
 
 	"github.com/joho/godotenv"
-	"user-service/config"
-	"user-service/db"
+	"github.com/vivekprm/go-corelib/middlewares"
+	"github.com/vivekprm/go-microservices-full-stack/user-service/config"
+	"github.com/vivekprm/go-microservices-full-stack/user-service/db"
 )
 
 func main() {
@@ -26,7 +27,8 @@ func main() {
 
 	userMux := http.NewServeMux()
 	userMux.Handle("/api/users", &userHandler{db: db})
-	userMux.Handle("/api/users/", &userHandler{db: db})
+	userMux.Handle("/api/users/", &middlewares.JwtHandler{Next: &userHandler{db: db}})
+	userMux.Handle("/api/login", &userHandler{db: db})
 	s := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),
 		Handler: userMux,

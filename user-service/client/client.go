@@ -2,15 +2,42 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/vivekprm/go-microservices-full-stack/user-service/models"
 )
 
-func main() {
-	createUser()
+type LoginResponse struct {
+	User  models.User
+	Token string
 }
 
+func main() {
+	resp := login()
+	updateUser(resp.Token)
+}
+func login() LoginResponse {
+	res, err := http.Post("http://localhost:4000/api/login", "application/json", bytes.NewBufferString(`
+		{
+			"email": "vivek@xyz.com",
+			"password": "welcome"
+		}
+	`))
+	if err != nil {
+		log.Println(err)
+	}
+	data, err := io.ReadAll(res.Body)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println("Response: ", string(data))
+	var loginResponse LoginResponse
+	json.Unmarshal(data, &loginResponse)
+	return loginResponse
+}
 func createUser() {
 	res, err := http.Post("http://localhost:4000/api/users", "application/json", bytes.NewBufferString(`
 		{
@@ -30,7 +57,7 @@ func createUser() {
 	log.Println("Response: ", string(data))
 }
 
-func updateUser() {
+func updateUser(token string) {
 	req, err := http.NewRequest(http.MethodPut, "http://localhost:4000/api/users/1", bytes.NewBufferString(`
 	{
 		"firstName": "vivek",
@@ -39,6 +66,7 @@ func updateUser() {
 	}
 	`))
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Add("x-access-token", token)
 	if err != nil {
 		log.Fatal(err)
 	}

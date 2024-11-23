@@ -6,4 +6,4 @@ CREATE TABLE users (
   password VARCHAR (255) NOT NULL
 );
 
-INSERT INTO users (first_name, last_name, email, password) VALUES ('vivek', 'mishra', 'vivek@example.com', 'test1234')
+-- INSERT INTO users (first_name, last_name, email, password) VALUES ('vivek', 'mishra', 'vivek@example.com', 'test1234')

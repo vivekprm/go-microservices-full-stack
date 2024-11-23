@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/vivekprm/go-microservices-full-stack/user-service/config"
+	"github.com/vivekprm/go-microservices-full-stack/user-service/models"
+
 	_ "github.com/lib/pq"
-	"user-service/config"
-	"user-service/models"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -58,6 +59,16 @@ func (db *DB) GetUserByID(id string) (*models.User, error) {
 	err := db.QueryRow("SELECT * FROM users WHERE id = $1", id).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password)
 	if err != nil {
 		return nil, fmt.Errorf("error getting user by ID: %v", err)
+	}
+
+	return &user, nil
+}
+
+func (db *DB) GetUserByEmail(email string) (*models.User, error) {
+	var user models.User
+	err := db.QueryRow("SELECT * FROM users WHERE email = $1", email).Scan(&user.ID, &user.FirstName, &user.LastName, &user.Email, &user.Password)
+	if err != nil {
+		return nil, fmt.Errorf("error getting user by email: %v", err)
 	}
 
 	return &user, nil
