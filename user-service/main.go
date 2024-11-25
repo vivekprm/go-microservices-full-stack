@@ -26,7 +26,14 @@ func main() {
 	defer db.Close()
 
 	userMux := http.NewServeMux()
-	userMux.Handle("/api/users", &userHandler{db: db})
+	userMux.Handle("/api/users", &middlewares.CorsHandler{
+		Next: &userHandler{db: db},
+		Config: &middlewares.CorsConfig{
+			AllowedOrigins: []string{"*"},
+			AllowedMethods: []string{"*"},
+			AllowedHeaders: []string{"*"},
+		},
+	})
 	userMux.Handle("/api/users/", &middlewares.JwtHandler{Next: &userHandler{db: db}})
 	userMux.Handle("/api/login", &middlewares.CorsHandler{
 		Next: &userHandler{db: db},

@@ -88,9 +88,6 @@ func (db *DB) AddUser(user *models.User) (models.User, error) {
 	if err != nil {
 		return models.User{}, fmt.Errorf("error adding user: %v", err)
 	}
-	if err != nil {
-		return models.User{}, fmt.Errorf("unable to get last insert id: %v", err)
-	}
 	return models.User{
 		ID:        string(id),
 		FirstName: user.FirstName,

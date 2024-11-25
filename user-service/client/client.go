@@ -16,8 +16,9 @@ type LoginResponse struct {
 }
 
 func main() {
-	resp := login()
-	updateUser(resp.Token)
+	// resp := login()
+	// updateUser(resp.Token)
+	createUser()
 }
 func login() LoginResponse {
 	res, err := http.Post("http://localhost:4000/api/login", "application/json", bytes.NewBufferString(`
